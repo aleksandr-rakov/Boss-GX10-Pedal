@@ -63,6 +63,7 @@ def task_write_midi(outport, ip_inport):
     print(message)
 
     if message.is_cc(control=config.PING_CC):
+        update_state({'last_ping_in': time.time()})
         return
 
     print(outport.send(message))

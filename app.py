@@ -19,6 +19,8 @@ STATE={
     'bank': 0,
     'program': 0,
     'shutdown': False,
+    'last_ping_in': 0,
+    'last_ping_out': 0,
 }
 def update_state(upd):
     with data_lock:
@@ -59,7 +61,7 @@ def tf_dec(f):
     return wrp
 
 @tf_dec
-def task_read_midi(inport):
+def task_read_midi(inport,ping_outport):
     #read midi
     
     message = inport.receive(block=False)
@@ -74,6 +76,13 @@ def task_read_midi(inport):
 
     elif message.type=='program_change':
         update_state({'program': message.program+1})
+
+    elif message.is_cc(control=config.PING_CC) and not ping_outport is None:
+        ping_outport.send(lib_midi.ping_msg())
+        update_state({'last_ping_in': time.time()})
+    
+    else:
+        print('Ignored')
 
 @tf_dec
 def task_write_midi(outport):
@@ -168,6 +177,7 @@ if __name__ == "__main__":
     oled=lib_oled.SSD1306_Display()
     oled.display_status('Init...')
 
+    ping_outport=None
     try:
         inport,outport=lib_midi.get_ports(config.midi_device)
     except:
@@ -179,6 +189,7 @@ if __name__ == "__main__":
             oled.display_status('Not connected...')
             time.sleep(3)
             raise
+        ping_outport=outport
 
     lib_gpio.setup(buttonsq)
 
@@ -188,7 +199,7 @@ if __name__ == "__main__":
         buttonsq.put('down')
 
     with ThreadPoolExecutor(max_workers=4) as executor:
-        future1 = executor.submit(task_read_midi,inport)
+        future1 = executor.submit(task_read_midi,inport,ping_outport)
         future2 = executor.submit(task_write_midi,outport)
         future3 = executor.submit(task_update_display,oled)
         future4 = executor.submit(task_update_leds)
