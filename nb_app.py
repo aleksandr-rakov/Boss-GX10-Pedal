@@ -54,9 +54,9 @@ def task_read_midi(inport, ip_outport):
         update_state({'last_ping_out': last_ping_out},True)
         time.sleep(0.015)
         return
-    print(message)
+    print('read_midi',message)
 
-    print(ip_outport.send(message))
+    ip_outport.send(message)
 
 @tf_dec
 def task_write_midi(outport, ip_inport):
@@ -71,8 +71,8 @@ def task_write_midi(outport, ip_inport):
         update_state({'last_ping_in': time.time()},True)
         return
 
-    print(message)
-    print(outport.send(message))
+    print('write_midi',message)
+    outport.send(message)
 
 
 if __name__ == "__main__":

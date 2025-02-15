@@ -78,8 +78,9 @@ def task_read_midi(inport,ping_outport):
             if state['last_ping_in']>0 and state['last_ping_in']+20<time.time():
                 raise Exception('Ping lost')
             # print('ping out')
-            ping_outport.send(lib_midi.ping_msg())
-            last_ping_out=0
+            if not ping_outport is None:
+                ping_outport.send(lib_midi.ping_msg())
+                last_ping_out=0
             
         update_state({'last_ping_out': last_ping_out},True)
         time.sleep(0.015)
@@ -90,7 +91,7 @@ def task_read_midi(inport,ping_outport):
         update_state({'last_ping_in': time.time()},True)
         return
 
-    print(message)
+    print('received',message)
 
     if message.is_cc(control=0) and 0<=message.value<=2:
         update_state({'bank': message.value})

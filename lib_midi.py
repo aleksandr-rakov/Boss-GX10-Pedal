@@ -102,37 +102,64 @@ def change_preset(outport,bank,program,delta=1):
 def set_preset(outport,bank,program):
 
     program-=1
-    print('send_midi',bank,program)
+    print('send_midi_preset',bank,program)
     msg=mido.Message.from_str(f'control_change channel={config.midi_channel} control=0 value={bank}')
     print(msg)
-    print(outport.send(msg))
+    outport.send(msg)
 
     msg=mido.Message.from_str(f'program_change channel={config.midi_channel} program={program}')
     print(msg)
-    print(outport.send(msg))
+    outport.send(msg)
 
 def ping_msg():
     return mido.Message.from_str(f'control_change channel={config.midi_channel} control={config.PING_CC} value=0')
 
 def send_cc(outport,cc):
-    print('send_cc',cc)
+    print('send_midi_cc',cc)
     msg=mido.Message.from_str(f'control_change channel={config.midi_channel} control={cc} value=0')
     print(msg)
-    print(outport.send(msg))
+    outport.send(msg)
 
-    print('send_cc',cc)
     msg=mido.Message.from_str(f'control_change channel={config.midi_channel} control={cc} value=127')
     print(msg)
-    print(outport.send(msg))
+    outport.send(msg)
 
    
 
 if __name__=='__main__':
 
+    def chunker(seq, size):
+        return (seq[pos:pos + size] for pos in range(0, len(seq), size))
+
     print(pmap)
+    print()
+
+    for c in chunker(plist,3):
+        print(c)
+    print()
+
+
+    for c in chunker(plist,3):
+        print([pmap[x] for x in c])
+    print()
+
+
+
     print(get_name(0,1))
     print(get_name(1,1))
     print(get_name(2,1))
+    print()
+
+
+    def sp(bank,program,delta):
+        new=shift_pos(bank,program,delta)
+        print(bank,program,delta,new)
+        
+    sp(2,1,1)
+    sp(2,1,-1)
+    print()
+
+
 
 
     print_ports()
@@ -141,11 +168,11 @@ if __name__=='__main__':
 
     msg=mido.Message.from_str(f'control_change channel={config.midi_channel} control=0 value=0')
     print(msg)
-    print(outport.send(msg))
+    outport.send(msg)
 
     msg=mido.Message.from_str(f'program_change channel={config.midi_channel} program=1')
     print(msg)
-    print(outport.send(msg))
+    outport.send(msg)
 
     
     print()
