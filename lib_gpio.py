@@ -3,7 +3,7 @@ from gpiozero import LED, Button
 import time
 from functools import wraps
 
-button_1 = Button(pin=config.button_gpio_1)
+# button_1 = Button(pin=config.button_gpio_1)
 button_2 = Button(pin=config.button_gpio_2)
 button_3 = Button(pin=config.button_gpio_3)
 button_4 = Button(pin=config.button_gpio_4)
@@ -80,7 +80,7 @@ def setup(q):
 
 if __name__=='__main__':
 
-    button_1.when_pressed=throttle(button_throttle)(lambda: print('up'))
+    # button_1.when_pressed=throttle(button_throttle)(lambda: print('up'))
     button_2.when_pressed=throttle(button_throttle)(lambda: print('down'))
 
     time.sleep(10)

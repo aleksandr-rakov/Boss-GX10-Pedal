@@ -12,10 +12,11 @@ STATE={
     'last_ping_in': 0,
     'last_ping_out': 0,
 }
-def update_state(upd):
+def update_state(upd, silent=False):
     with data_lock:
         STATE.update(upd)
-        print('STATE',STATE)
+        if not silent:
+            print('STATE',STATE)
 def get_state():
     with data_lock:
         res={}
@@ -40,13 +41,17 @@ def task_read_midi(inport, ip_outport):
     
     message = inport.receive(block=False)
     if not message:
-        last_ping_out=get_state()['last_ping_out']
+        state=get_state()
+        last_ping_out=state['last_ping_out']
         last_ping_out+=1
         if last_ping_out>300:
+            if state['last_ping_in']>0 and state['last_ping_in']+20<time.time():
+                raise Exception('Ping lost')
+            # print('ping out')
             ip_outport.send(lib_midi.ping_msg())
             last_ping_out=0
             
-        update_state({'last_ping_out': last_ping_out})
+        update_state({'last_ping_out': last_ping_out},True)
         time.sleep(0.015)
         return
     print(message)
@@ -60,12 +65,13 @@ def task_write_midi(outport, ip_inport):
     if not message:
         time.sleep(0.015)
         return
-    print(message)
 
     if message.is_cc(control=config.PING_CC):
-        update_state({'last_ping_in': time.time()})
+        # print('ping in')
+        update_state({'last_ping_in': time.time()},True)
         return
 
+    print(message)
     print(outport.send(message))
 
 
@@ -73,7 +79,8 @@ if __name__ == "__main__":
 
     try:
         inport,outport=lib_midi.get_ports(config.NB_MIDI_DEVICE)
-        ip_inport,ip_outport=lib_midi.get_ip_ports(config.PEDAL_IP)
+        ip_outport=lib_midi.get_ip_client_port(config.PEDAL_IP)
+        ip_inport=lib_midi.get_ip_server_port()
     except:
         # time.sleep(3)
         raise

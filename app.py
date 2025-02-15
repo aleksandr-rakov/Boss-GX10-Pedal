@@ -22,12 +22,13 @@ STATE={
     'last_ping_in': 0,
     'last_ping_out': 0,
 }
-def update_state(upd):
+def update_state(upd, silent=False):
     with data_lock:
         STATE.update(upd)
-        print('STATE',STATE)
-        screenq.put_nowait(1)
-        ledq.put_nowait(1)
+        if not silent:
+            print('STATE',STATE)
+            screenq.put_nowait(1)
+            ledq.put_nowait(1)
 def get_state():
     with data_lock:
         res={}
@@ -66,21 +67,35 @@ def task_read_midi(inport,ping_outport):
     
     message = inport.receive(block=False)
     if not message:
-        #правильней перенести в отрисовку ?
+        # #правильней перенести в отрисовку ?
+        # time.sleep(0.015)
+        # return
+
+        state=get_state()
+        last_ping_out=state['last_ping_out']
+        last_ping_out+=1
+        if last_ping_out>300:
+            if state['last_ping_in']>0 and state['last_ping_in']+20<time.time():
+                raise Exception('Ping lost')
+            # print('ping out')
+            ping_outport.send(lib_midi.ping_msg())
+            last_ping_out=0
+            
+        update_state({'last_ping_out': last_ping_out},True)
         time.sleep(0.015)
         return
+    
+    if message.is_cc(control=config.PING_CC) and not ping_outport is None:
+        # ping_outport.send(lib_midi.ping_msg())
+        update_state({'last_ping_in': time.time()},True)
+        return
+
     print(message)
 
     if message.is_cc(control=0) and 0<=message.value<=2:
         update_state({'bank': message.value})
-
     elif message.type=='program_change':
         update_state({'program': message.program+1})
-
-    elif message.is_cc(control=config.PING_CC) and not ping_outport is None:
-        ping_outport.send(lib_midi.ping_msg())
-        update_state({'last_ping_in': time.time()})
-    
     else:
         print('Ignored')
 
@@ -183,7 +198,8 @@ if __name__ == "__main__":
     except:
         oled.display_status('Init WiFi...')
         try:
-            outport,inport=lib_midi.get_ip_ports(config.NB_IP)
+            inport=lib_midi.get_ip_server_port()
+            outport=lib_midi.get_ip_client_port(config.NB_IP)
             # запустить проверку пинга
         except:
             oled.display_status('Not connected...')
@@ -212,5 +228,5 @@ if __name__ == "__main__":
         except:
             print(traceback.format_exc())
             event.set()
-            oled.display_status('Connection lost...')
+            oled.display_status('Lost connection ...')
             time.sleep(1)

@@ -1,7 +1,7 @@
 import mido
 from mido.sockets import PortServer, connect
 import config
-
+import time
 
 """
 p   bank1 bank2 bank3
@@ -63,11 +63,28 @@ def get_ports(portname):
 
     return mido.open_input(portname), mido.open_output(portname)
 
-def get_ip_ports(ip):
+def get_ip_server_port():
     server = PortServer('0.0.0.0', config.IP_PORT)
-    external_port = connect(ip, config.IP_PORT)
     local_port = server.accept()
-    return external_port, local_port
+    print('connection accepted')
+    return local_port
+
+def get_ip_client_port(ip):
+    n=0
+    while 1:
+        n+=1
+        print('try',n)
+        try:
+            external_port = connect(ip, config.IP_PORT)
+        except:
+            if n>5:
+                raise
+            time.sleep(1)
+            pass
+        else:
+            print('connected')
+            break
+    return external_port
 
 def change_preset(outport,bank,program,delta=1):
 
