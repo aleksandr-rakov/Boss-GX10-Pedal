@@ -194,9 +194,11 @@ if __name__ == "__main__":
 
     ping_outport=None
     try:
+        print('Init USB...')
         inport,outport=lib_midi.get_ports(config.midi_device)
     except:
         oled.display_status('Init WiFi...')
+        print('Init WiFi...')
         try:
             inport=lib_midi.get_ip_server_port()
             outport=lib_midi.get_ip_client_port(config.NB_IP)

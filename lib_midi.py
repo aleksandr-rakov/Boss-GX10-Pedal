@@ -2,6 +2,7 @@ import mido
 from mido.sockets import PortServer, connect
 import config
 import time
+import timeout_decorator
 
 """
 p   bank1 bank2 bank3
@@ -63,6 +64,7 @@ def get_ports(portname):
 
     return mido.open_input(portname), mido.open_output(portname)
 
+@timeout_decorator.timeout(10)
 def get_ip_server_port():
     server = PortServer('0.0.0.0', config.IP_PORT)
     local_port = server.accept()
