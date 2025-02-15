@@ -1,0 +1,10 @@
+[Unit]
+Description=Boss Pedal Software
+
+[Service]
+Type=simple
+ExecStart=/home/doggy/src/prog/boss-pedal.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
