@@ -96,7 +96,7 @@ def task_read_midi(inport,ping_outport):
     if message.is_cc(control=0) and 0<=message.value<=2:
         update_state({'bank': message.value})
     elif message.type=='program_change':
-        update_state({'program': message.program+1})
+        update_state({'program': message.program})
     else:
         print('Ignored')
 

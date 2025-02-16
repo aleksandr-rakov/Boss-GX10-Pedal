@@ -19,13 +19,11 @@ pl3=[]
 add=0
 for k1 in range(1,34):
     for k2 in range(1,4):
-        p=k1+k2-1+add
         b1=f'U{k1:02d}-{k2}'
         b2=f'U{(k1+33):02d}-{k2}'
         b3=f'P{k1:02d}-{k2}'
-        
-        # print(p,b1,b2,b3)
 
+        p=k1+k2-2+add
         pmap[0,p]=b1
         pmap[1,p]=b2
         pmap[2,p]=b3
@@ -145,9 +143,9 @@ if __name__=='__main__':
 
 
 
-    print(get_name(0,1))
-    print(get_name(1,1))
-    print(get_name(2,1))
+    print(get_name(0,0))
+    print(get_name(1,0))
+    print(get_name(2,0))
     print()
 
 
@@ -155,8 +153,8 @@ if __name__=='__main__':
         new=shift_pos(bank,program,delta)
         print(bank,program,delta,new)
         
-    sp(2,1,1)
-    sp(2,1,-1)
+    sp(2,0,1)
+    sp(2,0,-1)
     print()
 
 
