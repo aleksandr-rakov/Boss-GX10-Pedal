@@ -37,15 +37,15 @@ def throttle(throttle_seconds=0):
     return throttle_decorator
 
 def set_pled(p):
-    if p==0:
+    if p==1:
         led_p1.on()
     else:
         led_p1.off()
-    if p==1:
+    if p==2:
         led_p2.on()
     else:
         led_p2.off()
-    if p==2:
+    if p==3:
         led_p3.on()
     else:
         led_p3.off()
