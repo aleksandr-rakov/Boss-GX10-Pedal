@@ -19,7 +19,7 @@ led_p2 = LED(pin=config.p2_led_gpio)
 led_p3 = LED(pin=config.p3_led_gpio)
 
 
-button_throttle=0.15
+button_throttle=0.20
 def throttle(throttle_seconds=0):
     def throttle_decorator(fn):
         time_of_last_call = 0
@@ -37,15 +37,15 @@ def throttle(throttle_seconds=0):
     return throttle_decorator
 
 def set_pled(p):
-    if p==1:
+    if p==0:
         led_p1.on()
     else:
         led_p1.off()
-    if p==2:
+    if p==1:
         led_p2.on()
     else:
         led_p2.off()
-    if p==3:
+    if p==2:
         led_p3.on()
     else:
         led_p3.off()

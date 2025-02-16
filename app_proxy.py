@@ -28,16 +28,16 @@ def task_proxy_midi(inport, outport, dir):
     if not message:
         # time.sleep(0.015)
         return
-    print('read_midi',dir,message)
+    print(dir,message)
 
-    outport.send(message)
+    # outport.send(message)
 
 
 
 if __name__ == "__main__":
 
     try:
-        dev_inport,dev_outport=lib_midi.get_ports(config.NB_MIDI_DEVICE)
+        dev_inport,dev_outport=lib_midi.get_ports('GX-10')
         prog_inport,prog_outport=lib_midi.get_virtual_ports()
     except:
         # time.sleep(3)

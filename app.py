@@ -135,7 +135,7 @@ def task_write_midi(outport):
             state_txt=lib_midi.get_name(state['bank'],state['program'])
             if '-' in state_txt:
                 p=state_txt.split('-')[1]
-                p=int(p)
+                p=int(p)-1
 
                 delta=t-p
                 if delta:

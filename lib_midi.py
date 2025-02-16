@@ -65,6 +65,7 @@ def get_ports(portname):
 def get_virtual_ports():
     outport=mido.open_output('GX-10', virtual=True)
     inport=mido.open_input('GX-10')
+    # inport=mido.open_input('GX-10 (DAW)',virtual=True)
     return inport,outport
 
 @timeout_decorator.timeout(10)
