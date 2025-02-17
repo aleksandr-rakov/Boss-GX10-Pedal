@@ -144,6 +144,10 @@ def task_write_midi(outport):
         elif m=='shutdown':
             update_state({'shutdown': True})
             os.system('/usr/sbin/poweroff')
+        
+        elif m=='reboot':
+            # update_state({'shutdown': True})
+            os.system('/usr/sbin/reboot')
 
         else:
             print(f'Ignore button {m}')

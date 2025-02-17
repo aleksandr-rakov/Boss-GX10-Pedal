@@ -54,6 +54,10 @@ def shutdown(q):
     q.put_nowait('shutdown')
     led_pwr.on()
 
+def reboot(q):
+    q.put_nowait('reboot')
+    led_pwr.on()
+
 def setup(q):
     led_pwr.off()
     led_p1.on()
@@ -74,7 +78,7 @@ def setup(q):
     button_3.when_pressed=throttle(button_throttle)(lambda: q.put_nowait('cc1'))
 
     # button_7.when_held = lambda: shutdown(q)
-    button_2.when_held = lambda: shutdown(q)
+    button_3.when_held = lambda: reboot(q)
     button_2.when_held = lambda: shutdown(q)
 
 

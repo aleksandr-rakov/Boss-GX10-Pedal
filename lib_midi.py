@@ -63,9 +63,8 @@ def get_ports(portname):
     return mido.open_input(portname), mido.open_output(portname)
 
 def get_virtual_ports():
-    outport=mido.open_output('GX-10', virtual=True)
-    inport=mido.open_input('GX-10')
-    # inport=mido.open_input('GX-10 (DAW)',virtual=True)
+    inport=mido.open_input('GX-10',virtual=True)
+    outport=mido.open_output('GX-10')
     return inport,outport
 
 @timeout_decorator.timeout(10)
@@ -128,7 +127,15 @@ def send_cc(outport,cc):
     print(msg)
     outport.send(msg)
 
-   
+def parse_sysex(s):
+        data=s.split('(')[1].split(')')[0].replace(' ','').split(',')
+        header=data[:12]
+        print(header)
+        mess=data[12:-1]
+        
+        print(''.join(chr(int(c)) for c in mess if c!='0'))
+        
+        return mess   
 
 if __name__=='__main__':
 
@@ -162,6 +169,23 @@ if __name__=='__main__':
     sp(2,0,1)
     sp(2,0,-1)
     print()
+
+
+    m1="sysex data=(65,16,0,0,0,0,11,18,16,0,0,0, 84,83,82,32,76,69,69,32,77,69,84,65,76,32,32,32,2,3,1,1,1,1,0,0,0,0,0,0,8,0,0,12,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,0,1,0,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,5,5,0,0,0,0,1,0,0,0,0,0,0,0,0,0,2,11,5,0,0,0, 64) time=0"
+    m2="sysex data=(65,16,0,0,0,0,11,18,16,0,0,0, 50,84,83,82,32,76,69,69,32,77,69,84,65,76,32,32,2,3,1,1,1,1,0,0,0,0,0,0,8,0,0,12,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,0,1,0,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,5,5,0,0,0,0,1,0,0,0,0,0,0,0,0,0,2,11,5,0,0,0, 46) time=0"
+    m3="sysex data=(65,16,0,0,0,0,11,18, 0,0,0,0, 0,0,12,3, 113) time=0"
+    m4="sysex data=(65,16,0,0,0,0,11,18, 0,0,0,0, 0,0,12,4, 112) time=0"
+    
+    
+    print(parse_sysex(m1))
+    print("=========")
+    print(parse_sysex(m2))
+    print("=========")
+    print(parse_sysex(m3))
+    print("=========")
+    print(parse_sysex(m4))
+    print("=========")
+
 
 
 
