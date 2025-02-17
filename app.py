@@ -137,6 +137,11 @@ def task_write_midi(outport):
         elif m=='bdown':
             lib_midi.change_preset(outport,state['bank'],state['program'],-3)
 
+        elif m=='bfastup':
+            lib_midi.change_preset(outport,state['bank'],state['program'],99)
+        elif m=='bfastdown':
+            lib_midi.change_preset(outport,state['bank'],state['program'],-99)
+
         elif m=='cc1':
             lib_midi.send_cc(outport,1)
         
