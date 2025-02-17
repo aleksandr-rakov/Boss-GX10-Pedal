@@ -18,6 +18,7 @@ ledq = queue.Queue()
 STATE={
     'bank': 0,
     'program': 0,
+    'pname': '-',
     'shutdown': False,
     'reboot': False,
     'last_ping_in': 0,
@@ -105,6 +106,10 @@ def task_read_midi(inport,ping_outport):
         update_state({'bank': message.value})
     elif message.type=='program_change':
         update_state({'program': message.program+1})
+        buttonsq.put('request_preset_name')
+    elif message.type=='sysex':
+        pname=lib_midi.parse_pname(message)
+        update_state({'pname': pname})
     else:
         print('Ignored')
 
@@ -148,6 +153,9 @@ def task_write_midi(outport):
                 delta=t-p
                 if delta:
                     lib_midi.set_preset(outport,state['bank'],state['program']+delta)
+
+        elif m=='request_preset_name':
+            lib_midi.request_preset_name(outport)
         
         elif m=='shutdown':
             update_state({'shutdown': True})
@@ -181,7 +189,7 @@ def task_update_display(oled):
             event.set()
         else:
             state_txt=lib_midi.get_name(state['bank'],state['program'])
-            oled.show_selected_preset(state_txt)
+            oled.show_selected_preset(state_txt, state['pname'])
         
 @tf_dec
 def task_update_leds():

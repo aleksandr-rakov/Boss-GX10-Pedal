@@ -7,6 +7,7 @@ i2c_address = 0x3C #Common address for OLED
 font = 'Nouveau_IBM.ttf'
 status_size = 20
 preset_size = 48
+pname_size = 16
 
 
 #button_gpio_1 = 23

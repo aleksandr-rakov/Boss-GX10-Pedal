@@ -26,6 +26,7 @@ class SSD1306_Display:
         font_path = source_dir + '/fonts/' + config.font
 
         self.status_font = ImageFont.truetype(font_path, config.status_size)
+        self.pname_font = ImageFont.truetype(font_path, config.pname_size)
         self.preset_font = ImageFont.truetype(font_path, config.preset_size)
 
     def clear_screen(self):
@@ -46,16 +47,19 @@ class SSD1306_Display:
         self.disp.image(self.image)
         self.disp.display()
 
-    def show_selected_preset(self, preset, name = None, bpm = None):
-        if self.last_text == preset:
+    def show_selected_preset(self, preset, name):
+        cache_key=f'{preset}{name}'
+        if self.last_text == cache_key:
             return
         else:
-            self.last_text = preset
+            self.last_text = cache_key
 
         self.clear_screen()
 
-        self.draw.text((0, 12), preset,
+        self.draw.text((0, -2), preset,
                        font=self.preset_font, fill=255)
+        self.draw.text((0, 45), name,
+                       font=self.pname_font, fill=255)
         self.disp.image(self.image)
         self.disp.display()
 

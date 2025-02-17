@@ -127,15 +127,27 @@ def send_cc(outport,cc):
     print(msg)
     outport.send(msg)
 
+def request_preset_name(outport):
+    msg=mido.Message('sysex', data= (65,16,0,0,0,0,11,17,16,0,0,0,0,0,0,16,96) )
+    outport.send(msg)
+
 def parse_sysex(s):
-        data=s.split('(')[1].split(')')[0].replace(' ','').split(',')
-        header=data[:12]
-        print(header)
+    data=s.split('(')[1].split(')')[0].replace(' ','').split(',')
+    header=data[:12]
+    print(header)
+    mess=data[12:-1]
+    
+    print(''.join(chr(int(c)) for c in mess if c!='0'))
+    
+    return mess
+
+def parse_pname(message):
+    s=str(message)
+    data=s.split('(')[1].split(')')[0].replace(' ','').split(',')
+    header=data[:12]
+    if header==['65', '16', '0', '0', '0', '0', '11', '18', '16', '0', '0', '0']:
         mess=data[12:-1]
-        
-        print(''.join(chr(int(c)) for c in mess if c!='0'))
-        
-        return mess   
+        return ''.join(chr(int(c)) for c in mess if c!='0')
 
 if __name__=='__main__':
 
@@ -176,7 +188,9 @@ if __name__=='__main__':
     m3="sysex data=(65,16,0,0,0,0,11,18, 0,0,0,0, 0,0,12,3, 113) time=0"
     m4="sysex data=(65,16,0,0,0,0,11,18, 0,0,0,0, 0,0,12,4, 112) time=0"
     
-    
+    print(parse_pname(m1))
+    print("=========")
+
     print(parse_sysex(m1))
     print("=========")
     print(parse_sysex(m2))
