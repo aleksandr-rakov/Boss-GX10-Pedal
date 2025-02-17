@@ -54,9 +54,9 @@ def shift_pos(bank,program,delta=1):
 def get_name(bank,program):
     return pmap.get((bank,program),f'{bank}:{program}')
 
-def print_ports():
+def get_device_names():
     names = mido.get_input_names()
-    print(names)
+    return names
 
 def get_ports(portname):
 
@@ -190,7 +190,7 @@ if __name__=='__main__':
 
 
 
-    print_ports()
+    print(get_ports())
 
     inport,outport=get_ports(config.midi_device)
 

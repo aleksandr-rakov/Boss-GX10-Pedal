@@ -19,6 +19,7 @@ STATE={
     'bank': 0,
     'program': 0,
     'shutdown': False,
+    'reboot': False,
     'last_ping_in': 0,
     'last_ping_out': 0,
 }
@@ -74,11 +75,18 @@ def task_read_midi(inport,ping_outport):
         state=get_state()
         last_ping_out=state['last_ping_out']
         last_ping_out+=1
-        if last_ping_out>300:
-            if state['last_ping_in']>0 and state['last_ping_in']+20<time.time():
-                raise Exception('Ping lost')
-            # print('ping out')
-            if not ping_outport is None:
+
+        if ping_outport is None:
+            if last_ping_out>300:
+                if not config.midi_device in lib_midi.get_device_names():
+                    raise Exception('Device lost')
+                last_ping_out=0
+        else:
+            if last_ping_out>300:
+                if state['last_ping_in']>0 and state['last_ping_in']+20<time.time():
+                    raise Exception('Ping lost')
+            
+                # print('ping out')
                 ping_outport.send(lib_midi.ping_msg())
                 last_ping_out=0
             
@@ -146,7 +154,7 @@ def task_write_midi(outport):
             os.system('/usr/sbin/poweroff')
         
         elif m=='reboot':
-            # update_state({'shutdown': True})
+            update_state({'reboot': True})
             os.system('/usr/sbin/reboot')
 
         else:
@@ -167,6 +175,9 @@ def task_update_display(oled):
         state=get_state()
         if state['shutdown']:
             oled.display_status('Shutdown...')
+            event.set()
+        elif state['reboot']:
+            oled.display_status('Reboot...')
             event.set()
         else:
             state_txt=lib_midi.get_name(state['bank'],state['program'])

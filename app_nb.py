@@ -47,6 +47,10 @@ def task_read_midi(inport, ip_outport):
         if last_ping_out>300:
             if state['last_ping_in']>0 and state['last_ping_in']+20<time.time():
                 raise Exception('Ping lost')
+            
+            if not config.NB_MIDI_DEVICE in lib_midi.get_device_names():
+                    raise Exception('Device lost')
+            
             # print('ping out')
             ip_outport.send(lib_midi.ping_msg())
             last_ping_out=0
