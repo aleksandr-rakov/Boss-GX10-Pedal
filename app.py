@@ -249,8 +249,9 @@ if __name__ == "__main__":
 
     uptime=get_uptime()
     if uptime<300:
-        buttonsq.put('up')
-        buttonsq.put('down')
+        # buttonsq.put('up')
+        # buttonsq.put('down')
+        lib_midi.set_preset(outport,1,97)
 
     with ThreadPoolExecutor(max_workers=4) as executor:
         future1 = executor.submit(task_read_midi,inport,ping_outport)
