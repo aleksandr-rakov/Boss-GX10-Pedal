@@ -58,6 +58,16 @@ def reboot(q):
     q.put_nowait('reboot')
     led_pwr.on()
 
+def pwr_wrp(f):
+    def _w():
+        led_pwr.on()
+        f()
+    return _w
+
+def pre_setup(shutdown_cmd,reboot_cmd):
+    button_2.when_held = pwr_wrp(shutdown_cmd)
+    button_3.when_held = pwr_wrp(reboot_cmd)
+
 def setup(q):
     led_pwr.off()
     led_p1.on()
@@ -74,8 +84,10 @@ def setup(q):
 
     button_7.when_pressed=throttle(button_throttle)(lambda: q.put_nowait('bdown'))
     button_7.when_held=lambda: q.put_nowait('bfastdown')
+    button_7.hold_repeat=True
     button_8.when_pressed=throttle(button_throttle)(lambda: q.put_nowait('bup'))
     button_8.when_held=lambda: q.put_nowait('bfastup')
+    button_8.hold_repeat=True
 
     button_4.when_pressed=throttle(button_throttle)(lambda: q.put_nowait('p1'))
     button_5.when_pressed=throttle(button_throttle)(lambda: q.put_nowait('p2'))

@@ -164,14 +164,19 @@ def task_write_midi(outport):
         
         elif m=='shutdown':
             update_state({'shutdown': True})
-            os.system('/usr/sbin/poweroff')
+            shutdown_cmd()
         
         elif m=='reboot':
             update_state({'reboot': True})
-            os.system('/usr/sbin/reboot')
+            reboot_cmd()
 
         else:
             print(f'Ignore button {m}')
+
+def shutdown_cmd():
+    os.system('/usr/sbin/poweroff')
+def reboot_cmd():
+    os.system('/usr/sbin/reboot')
 
 @tf_dec
 def task_update_display(oled):
@@ -220,6 +225,8 @@ if __name__ == "__main__":
 
     oled=lib_oled.SSD1306_Display()
     oled.display_status('Init...')
+
+    lib_gpio.pre_setup(shutdown_cmd,reboot_cmd)
 
     ping_outport=None
     try:
