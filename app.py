@@ -69,10 +69,6 @@ def task_read_midi(inport,ping_outport):
     
     message = inport.receive(block=False)
     if not message:
-        # #правильней перенести в отрисовку ?
-        # time.sleep(0.015)
-        # return
-
         state=get_state()
         last_ping_out=state['last_ping_out']
         last_ping_out+=1
