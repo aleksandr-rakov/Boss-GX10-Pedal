@@ -23,6 +23,7 @@ STATE={
     'reboot': False,
     'last_ping_in': 0,
     'last_ping_out': 0,
+    'last_button': None,
 }
 def update_state(upd, silent=False):
     with data_lock:
@@ -99,16 +100,21 @@ def task_read_midi(inport,ping_outport):
     print('received',message)
 
     if message.is_cc(control=0) and 0<=message.value<=2:
-        update_state({'bank': message.value},True)
+        # update_state({'bank': message.value},True)
+        pass
     elif message.type=='program_change':
-        update_state({'program': message.program})
-        buttonsq.put('request_preset_name')
+        # update_state({'program': message.program})
+        # buttonsq.put('request_preset_name')
+        pass
     elif message.type=='sysex':
         mtype,mvalue=lib_midi.parse_sysex(message)
         if mtype=='pname':
             update_state({'pname': mvalue})
         elif mtype=='pnum':
-            print('PNUM',mvalue)
+            # print('PNUM',mvalue)
+            bank,program=lib_midi.get_bank_program(mvalue)
+            update_state({'bank':bank ,'program': program})
+            buttonsq.put('request_preset_name')
         else:
             print('Ignored')
     else:
@@ -128,6 +134,7 @@ def task_write_midi(outport):
 
         state=get_state()
         print('button',m)
+
         if m=='up':
             lib_midi.change_preset(outport,state['bank'],state['program'],1)
         elif m=='down':
@@ -139,9 +146,19 @@ def task_write_midi(outport):
             lib_midi.change_preset(outport,state['bank'],state['program'],-3)
 
         elif m=='bfastup':
-            lib_midi.change_preset(outport,state['bank'],state['program'],99)
+            last_button=state['last_button']
+            update_state({'last_button': m},True)
+            shift=96
+            if last_button=='bfastup': #hold repeat
+                shift=99
+            lib_midi.change_preset(outport,state['bank'],state['program'],shift)
         elif m=='bfastdown':
-            lib_midi.change_preset(outport,state['bank'],state['program'],-99)
+            last_button=state['last_button']
+            update_state({'last_button': m},True)
+            shift=-96
+            if last_button=='bfastdown': #hold repeat
+                shift=-99
+            lib_midi.change_preset(outport,state['bank'],state['program'],shift)
 
         elif m=='cc1':
             lib_midi.send_cc(outport,1)
@@ -249,11 +266,12 @@ if __name__ == "__main__":
     lib_gpio.setup(buttonsq)
     
     lib_midi.subscribe(outport)
-    uptime=get_uptime()
-    if uptime<300:
-        # buttonsq.put('up')
-        # buttonsq.put('down')
-        lib_midi.set_preset(outport,1,96)
+    lib_midi.get_current_pnum(outport)
+    # uptime=get_uptime()
+    # if uptime<300:
+    #     # buttonsq.put('up')
+    #     # buttonsq.put('down')
+    #     lib_midi.set_preset(outport,1,96)
         
 
     with ThreadPoolExecutor(max_workers=4) as executor:

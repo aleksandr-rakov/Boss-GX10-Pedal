@@ -36,6 +36,7 @@ for k1 in range(1,34):
 
 plist=pl1+pl2+pl3
 plist_len=len(plist)
+pmap_rev={v:k for k,v in pmap.items()}
 
 pmap2={}
 b=p=1
@@ -62,6 +63,10 @@ while 1:
 
     if (c1,c2,c3)==(0, 12, 6):
         c3=8
+
+
+def get_bank_program(pname):
+    return pmap_rev.get(pname,(0,0))
 
 def shift_pos(bank,program,delta=1):
     try:
