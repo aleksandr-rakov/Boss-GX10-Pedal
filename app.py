@@ -99,13 +99,14 @@ def task_read_midi(inport,ping_outport):
     print('received',message)
 
     if message.is_cc(control=0) and 0<=message.value<=2:
-        update_state({'bank': message.value})
+        update_state({'bank': message.value},True)
     elif message.type=='program_change':
-        update_state({'program': message.program+1})
+        update_state({'program': message.program})
         buttonsq.put('request_preset_name')
     elif message.type=='sysex':
         pname=lib_midi.parse_pname(message)
-        update_state({'pname': pname})
+        if pname:
+            update_state({'pname': pname})
     else:
         print('Ignored')
 
@@ -242,12 +243,14 @@ if __name__ == "__main__":
         ping_outport=outport
 
     lib_gpio.setup(buttonsq)
-
+    
+    lib_midi.subscribe(outport)
     uptime=get_uptime()
     if uptime<300:
         # buttonsq.put('up')
         # buttonsq.put('down')
-        lib_midi.set_preset(outport,1,97)
+        lib_midi.set_preset(outport,1,96)
+        
 
     with ThreadPoolExecutor(max_workers=4) as executor:
         future1 = executor.submit(task_read_midi,inport,ping_outport)

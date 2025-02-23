@@ -23,7 +23,7 @@ for k1 in range(1,34):
         b2=f'U{(k1+33):02d}-{k2}'
         b3=f'P{k1:02d}-{k2}'
 
-        p=k1+k2-1+add
+        p=k1+k2-2+add
         pmap[0,p]=b1
         pmap[1,p]=b2
         pmap[2,p]=b3
@@ -104,7 +104,6 @@ def change_preset(outport,bank,program,delta=1):
 
 def set_preset(outport,bank,program):
 
-    program-=1
     print('send_midi_preset',bank,program)
     msg=mido.Message.from_str(f'control_change channel={config.midi_channel} control=0 value={bank}')
     print(msg)
@@ -140,6 +139,10 @@ def parse_sysex(s):
     print(''.join(chr(int(c)) for c in mess if c!='0'))
     
     return mess
+
+def subscribe(outport):
+    msg=mido.Message('sysex', data= (65,16,0,0,0,0,11,18,127,0,0,1,1,127) )
+    outport.send(msg)
 
 def parse_pname(message):
     s=str(message)
