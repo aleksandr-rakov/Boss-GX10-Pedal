@@ -156,6 +156,14 @@ def request_preset_name(outport):
     msg=mido.Message('sysex', data= (65,16,0,0,0,0,11,17,16,0,0,0,0,0,0,16,96) )
     outport.send(msg)
 
+def subscribe(outport):
+    msg=mido.Message('sysex', data= (65,16,0,0,0,0,11,18,127,0,0,1,1,127) )
+    outport.send(msg)
+
+def get_current_pnum(outport):
+    msg=mido.Message('sysex', data= (65,16,0,0,0,0,11,17,0,0,0,0,0,0,0,4,124) )
+    outport.send(msg)
+
 def parse_sysex(message):
     s=str(message)
     data=s.split('(')[1].split(')')[0].replace(' ','').split(',')
@@ -168,10 +176,6 @@ def parse_sysex(message):
         # print(mess)
         return 'pnum',pmap2.get(tuple(mess))
     return None,None
-
-def subscribe(outport):
-    msg=mido.Message('sysex', data= (65,16,0,0,0,0,11,18,127,0,0,1,1,127) )
-    outport.send(msg)
 
 
 if __name__=='__main__':
