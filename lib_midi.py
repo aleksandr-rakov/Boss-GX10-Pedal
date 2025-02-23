@@ -37,6 +37,32 @@ for k1 in range(1,34):
 plist=pl1+pl2+pl3
 plist_len=len(plist)
 
+pmap2={}
+b=p=1
+c1=c2=c3=0
+while 1:
+    v=f'{b>66 and "P" or "U"}{b>66 and b-66 or b:02d}-{p}'
+    k=('0',str(c1),str(c2),str(c3))
+    # print(v,k)
+    pmap2[k]=v
+
+    p+=1
+    if p>3:
+        p=1
+        b+=1
+        if b>99:
+            break
+    c3+=1
+    if c3>15:
+        c3=0
+        c2+=1
+    if c2>15:
+        c2=0
+        c1+=1
+
+    if (c1,c2,c3)==(0, 12, 6):
+        c3=8
+
 def shift_pos(bank,program,delta=1):
     try:
         cur=plist.index((bank,program))
@@ -130,27 +156,23 @@ def request_preset_name(outport):
     msg=mido.Message('sysex', data= (65,16,0,0,0,0,11,17,16,0,0,0,0,0,0,16,96) )
     outport.send(msg)
 
-def parse_sysex(s):
+def parse_sysex(message):
+    s=str(message)
     data=s.split('(')[1].split(')')[0].replace(' ','').split(',')
     header=data[:12]
-    print(header)
-    mess=data[12:-1]
-    
-    print(''.join(chr(int(c)) for c in mess if c!='0'))
-    
-    return mess
+    if header==  ['65','16','0','0','0','0','11','18','16','0','0','0']:
+        mess=data[12:-1]
+        return 'pname',''.join(chr(int(c)) for c in mess if c!='0')
+    elif header==['65','16','0','0','0','0','11','18','0' ,'0','0','0']:
+        mess=data[12:-1]
+        # print(mess)
+        return 'pnum',pmap2.get(tuple(mess))
+    return None,None
 
 def subscribe(outport):
     msg=mido.Message('sysex', data= (65,16,0,0,0,0,11,18,127,0,0,1,1,127) )
     outport.send(msg)
 
-def parse_pname(message):
-    s=str(message)
-    data=s.split('(')[1].split(')')[0].replace(' ','').split(',')
-    header=data[:12]
-    if header==['65', '16', '0', '0', '0', '0', '11', '18', '16', '0', '0', '0']:
-        mess=data[12:-1]
-        return ''.join(chr(int(c)) for c in mess if c!='0')
 
 if __name__=='__main__':
 
@@ -177,6 +199,39 @@ if __name__=='__main__':
     print()
 
 
+
+
+    
+    # U01-1 (0,0,0)
+    # U01-2 (0,0,1)
+    # U33-3 (0,6,2)
+
+    # U34-1 (0,6,3)
+    # U64-3 (0,11,15)
+    # U65-1 (0,12,0)
+    # U65-2 (0,12,1)
+    # U65-3 (0,12,2)
+    # U66-1 (0,12,3)
+    # U66-2 (0,12,4)
+    # U66-3 (0,12,5)
+
+    # P01-1 (0,12,8)
+    # P07-1 (0,13,10)
+    # P13-2 (0,14,13)
+    # P17-1 (0,15,8)
+    # P33-2 (1,2,9)
+    # P33-3 (1,2,10)
+
+    print(pmap2[('0','0','0','0')])
+    print(pmap2[('0','0','12','5')])
+    print(pmap2[('0','1','2','10')])
+
+    
+    
+
+    exit()
+
+
     def sp(bank,program,delta):
         new=shift_pos(bank,program,delta)
         print(bank,program,delta,new)
@@ -190,9 +245,6 @@ if __name__=='__main__':
     m2="sysex data=(65,16,0,0,0,0,11,18,16,0,0,0, 50,84,83,82,32,76,69,69,32,77,69,84,65,76,32,32,2,3,1,1,1,1,0,0,0,0,0,0,8,0,0,12,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,0,1,0,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,5,5,0,0,0,0,1,0,0,0,0,0,0,0,0,0,2,11,5,0,0,0, 46) time=0"
     m3="sysex data=(65,16,0,0,0,0,11,18, 0,0,0,0, 0,0,12,3, 113) time=0"
     m4="sysex data=(65,16,0,0,0,0,11,18, 0,0,0,0, 0,0,12,4, 112) time=0"
-    
-    print(parse_pname(m1))
-    print("=========")
 
     print(parse_sysex(m1))
     print("=========")

@@ -104,9 +104,13 @@ def task_read_midi(inport,ping_outport):
         update_state({'program': message.program})
         buttonsq.put('request_preset_name')
     elif message.type=='sysex':
-        pname=lib_midi.parse_pname(message)
-        if pname:
-            update_state({'pname': pname})
+        mtype,mvalue=lib_midi.parse_sysex(message)
+        if mtype=='pname':
+            update_state({'pname': mvalue})
+        elif mtype=='pnum':
+            print('PNUM',mvalue)
+        else:
+            print('Ignored')
     else:
         print('Ignored')
 
