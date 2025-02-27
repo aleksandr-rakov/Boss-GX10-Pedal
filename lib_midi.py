@@ -93,11 +93,6 @@ def get_ports(portname):
 
     return mido.open_input(portname), mido.open_output(portname)
 
-def get_virtual_ports():
-    inport=mido.open_input('GX-10',virtual=True)
-    outport=mido.open_output('GX-10')
-    return inport,outport
-
 @timeout_decorator.timeout(10)
 def get_ip_server_port():
     server = PortServer('0.0.0.0', config.IP_PORT)
