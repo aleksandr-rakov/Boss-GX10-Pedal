@@ -8,6 +8,7 @@ import config
 import lib_gpio
 import lib_midi
 import lib_oled
+from mproxy.mproxy import run_proxy_loop
 
 data_lock = Lock()
 event = Event()
@@ -21,8 +22,6 @@ STATE={
     'pname': '-',
     'shutdown': False,
     'reboot': False,
-    'last_ping_in': 0,
-    'last_ping_out': 0,
     'last_button': None,
 }
 def update_state(upd, silent=False):
@@ -65,36 +64,12 @@ def tf_dec(f):
     return wrp
 
 @tf_dec
-def task_read_midi(inport,ping_outport):
+def task_read_midi(inport):
     #read midi
     
     message = inport.receive(block=False)
     if not message:
-        state=get_state()
-        last_ping_out=state['last_ping_out']
-        last_ping_out+=1
-
-        if ping_outport is None:
-            if last_ping_out>300:
-                if not config.midi_device in lib_midi.get_device_names():
-                    raise Exception('Device lost')
-                last_ping_out=0
-        else:
-            if last_ping_out>300:
-                if state['last_ping_in']>0 and state['last_ping_in']+20<time.time():
-                    raise Exception('Ping lost')
-            
-                # print('ping out')
-                ping_outport.send(lib_midi.ping_msg())
-                last_ping_out=0
-            
-        update_state({'last_ping_out': last_ping_out},True)
-        time.sleep(0.015)
-        return
-    
-    if message.is_cc(control=config.PING_CC) and not ping_outport is None:
-        # ping_outport.send(lib_midi.ping_msg())
-        update_state({'last_ping_in': time.time()},True)
+        time.sleep(0.01)
         return
 
     print('received',message)
@@ -236,7 +211,14 @@ def task_update_leds():
         if '-' in state_txt:
             p=state_txt.split('-')[1]
             lib_gpio.set_pled(int(p))
-        
+
+
+@tf_dec
+def task_proxy():
+    if config.PROXY_MIDI_DEVICE:
+        run_proxy_loop(None,config.IP_PORT,config.PROXY_MIDI_DEVICE)
+    else:
+        time.sleep(1)
 
 
 if __name__ == "__main__":
@@ -246,22 +228,13 @@ if __name__ == "__main__":
 
     lib_gpio.pre_setup(shutdown_cmd,reboot_cmd)
 
-    ping_outport=None
     try:
         print('Init USB...')
         inport,outport=lib_midi.get_ports(config.midi_device)
     except:
-        oled.display_status('Init WiFi...')
-        print('Init WiFi...')
-        try:
-            inport=lib_midi.get_ip_server_port()
-            outport=lib_midi.get_ip_client_port(config.NB_IP)
-            # запустить проверку пинга
-        except:
-            oled.display_status('Not connected...')
-            time.sleep(3)
-            raise
-        ping_outport=outport
+        oled.display_status('Not connected...')
+        time.sleep(1)
+        raise
 
     lib_gpio.setup(buttonsq)
     
@@ -274,17 +247,19 @@ if __name__ == "__main__":
     #     lib_midi.set_preset(outport,1,96)
         
 
-    with ThreadPoolExecutor(max_workers=4) as executor:
-        future1 = executor.submit(task_read_midi,inport,ping_outport)
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        future1 = executor.submit(task_read_midi,inport)
         future2 = executor.submit(task_write_midi,outport)
         future3 = executor.submit(task_update_display,oled)
         future4 = executor.submit(task_update_leds)
+        future5 = executor.submit(task_proxy)
         
         try:
             result1 = future1.result()
             result2 = future2.result()
             result3 = future3.result()
             result4 = future4.result()
+            result5 = future5.result()
         except:
             print(traceback.format_exc())
             event.set()

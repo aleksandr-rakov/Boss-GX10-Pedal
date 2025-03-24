@@ -1,4 +1,8 @@
+raspberry pi pedal for boss gx 10
+usb midi footswitch for boss gx 10
 
+
+#Hardware setup
 https://github.com/richtamblyn/PGSparkLite-Pedal/wiki/Hardware-Recommendations-and-Wiring-Guide-(Hardware-Version-2)
 
 
@@ -27,4 +31,3 @@ https://github.com/richtamblyn/PGSparkLite-Pedal/wiki/Hardware-Recommendations-a
 32	12   (PWM0)	Delay LED Anode
 37	26	 Drive LED Anode
 14	N/A	 LEDs Ground
-

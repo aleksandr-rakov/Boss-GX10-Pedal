@@ -1,8 +1,5 @@
 import mido
-from mido.sockets import PortServer, connect
 import config
-import time
-import timeout_decorator
 
 """
 p   bank1 bank2 bank3
@@ -90,32 +87,8 @@ def get_device_names():
     return names
 
 def get_ports(portname):
-
     return mido.open_input(portname), mido.open_output(portname)
 
-@timeout_decorator.timeout(10)
-def get_ip_server_port():
-    server = PortServer('0.0.0.0', config.IP_PORT)
-    local_port = server.accept()
-    print('connection accepted')
-    return local_port
-
-def get_ip_client_port(ip):
-    n=0
-    while 1:
-        n+=1
-        print('try',n)
-        try:
-            external_port = connect(ip, config.IP_PORT)
-        except:
-            if n>5:
-                raise
-            time.sleep(1)
-            pass
-        else:
-            print('connected')
-            break
-    return external_port
 
 def change_preset(outport,bank,program,delta=1):
 
@@ -138,9 +111,6 @@ def set_preset(outport,bank,program):
     msg=mido.Message.from_str(f'program_change channel={config.midi_channel} program={program}')
     print(msg)
     outport.send(msg)
-
-def ping_msg():
-    return mido.Message.from_str(f'control_change channel={config.midi_channel} control={config.PING_CC} value=0')
 
 def send_cc(outport,cc):
     print('send_midi_cc',cc)
@@ -263,7 +233,7 @@ if __name__=='__main__':
 
 
 
-    print(get_ports())
+    print(get_device_names())
 
     inport,outport=get_ports(config.midi_device)
 
