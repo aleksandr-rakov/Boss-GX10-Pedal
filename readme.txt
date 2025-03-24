@@ -31,3 +31,7 @@ https://github.com/richtamblyn/PGSparkLite-Pedal/wiki/Hardware-Recommendations-a
 32	12   (PWM0)	Delay LED Anode
 37	26	 Drive LED Anode
 14	N/A	 LEDs Ground
+
+
+build result example
+![build result example](https://github.com/aleksandr-rakov/Boss-GX10-Pedal/blob/main/example.jpg?raw=true)
