@@ -23,6 +23,9 @@ https://github.com/richtamblyn/PGSparkLite-Pedal/wiki/Hardware-Recommendations-a
 |40 |  21 |    button8 - bank up |
 |39 |  N/A |   Footswitches Ground |
 |8  |  14 |    (TXD) Mod LED Anode (Pwr) |
+|12	|18	|      Preset 3 LED Anode |
+|32	|12 |      Preset 2 LED Anode |
+|37	|26	|      Preset 1 LED Anode |
 |14 |  N/A |   LEDs Ground |
 
 
